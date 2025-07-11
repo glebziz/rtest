@@ -140,7 +140,7 @@ or in case of failure:
 
 ## License
 
-MIT License (or specify the actual license if known)
+[MIT](https://choosealicense.com/licenses/mit/)
 
 ## Contributing
 
