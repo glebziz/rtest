@@ -1,36 +1,3 @@
-macro_rules! _test_fn {
-    (skip $name:ident $(, $sup_name:ident)? => $code:block) => {
-        #[test]
-        #[ignore]
-        fn $name() {}
-    };
-
-    ($name:ident $(, $sup_name:ident)? => $code:block) => {
-        #[test]
-        fn $name() {
-            let fn_name = match stringify!($($sup_name)?) {
-                "" => stringify!($name).to_string(),
-                _ => format!("{}/{}", stringify!($($sup_name)?), stringify!($name))
-            };
-
-            let start = std::time::Instant::now();
-            println!("=== RUN  \t{}", fn_name);
-            match std::panic::catch_unwind(|| $code) {
-                Ok(_) => {
-                    let t = start.elapsed();
-                    println!("--- PASS:\t{} ({}.{})", fn_name, t.as_secs(), t.subsec_millis());
-                },
-                Err(err) => {
-                    let t = start.elapsed();
-                    println!("--- FAIL:\t{} ({}.{})", fn_name, t.as_secs(), t.subsec_millis());
-                    std::panic::resume_unwind(err);
-                }
-            };
-        }
-    };
-}
-
-
 /// Creates a test module with multiple test cases.
 ///
 /// Provides a structured way to define test cases with shared variables and test case structures.
@@ -80,12 +47,12 @@ macro_rules! test_cases {
             $case
 
             $(
-                _test_fn!(skip $skip_name, $name => {
+                test_fn!(skip $skip_name, $name => {
                     $code($skip_case)
                 });
 
                 $(
-                    _test_fn!($regular_name, $name => {
+                    test_fn!($regular_name, $name => {
                         $code($regular_case)
                     });
                 )?
@@ -113,12 +80,12 @@ macro_rules! test_cases {
             $case
 
             $(
-                _test_fn!($regular_name, $name => {
+                test_fn!($regular_name, $name => {
                     $code($regular_case)
                 });
 
                 $(
-                    _test_fn!(skip $skip_name, $name => {
+                    test_fn!(skip $skip_name, $name => {
                         $code($skip_case)
                     });
                 )?
@@ -149,11 +116,33 @@ macro_rules! test_cases {
 /// ```
 #[macro_export]
 macro_rules! test_fn {
-    (skip $name:ident => $code:block) => {
-        _test_fn!(skip $name => $code);
+    (skip $name:ident $(, $sup_name:ident)? => $code:block) => {
+        #[test]
+        #[ignore]
+        fn $name() {}
     };
 
-    ($name:ident => $code:block) => {
-        _test_fn!($name => $code);
+    ($name:ident $(, $sup_name:ident)? => $code:block) => {
+        #[test]
+        fn $name() {
+            let fn_name = match stringify!($($sup_name)?) {
+                "" => stringify!($name).to_string(),
+                _ => format!("{}/{}", stringify!($($sup_name)?), stringify!($name))
+            };
+
+            let start = std::time::Instant::now();
+            println!("=== RUN  \t{}", fn_name);
+            match std::panic::catch_unwind(|| $code) {
+                Ok(_) => {
+                    let t = start.elapsed();
+                    println!("--- PASS:\t{} ({}.{})", fn_name, t.as_secs(), t.subsec_millis());
+                },
+                Err(err) => {
+                    let t = start.elapsed();
+                    println!("--- FAIL:\t{} ({}.{})", fn_name, t.as_secs(), t.subsec_millis());
+                    std::panic::resume_unwind(err);
+                }
+            };
+        }
     };
 }
