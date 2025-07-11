@@ -16,13 +16,13 @@ Add `rtest` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rtest = "0.1.0"
+rtest = { version = "0.1.0", git = "https://github.com/glebziz/rtest" }
 ```
 
 Or use the cargo command:
 
 ```bash
-cargo add rtest
+cargo add rtest --git https://github.com/glebziz/rtest
 ```
 
 ## Usage
